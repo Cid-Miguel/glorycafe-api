@@ -58,6 +58,12 @@ public class GlobalExceptionHandler : IExceptionHandler
                     Detail = ex.Message
                 });
 
+            case InvalidCredentialsException:
+                return (StatusCodes.Status401Unauthorized, "Invalid credentials", new ProblemDetails
+                {
+                    Detail = ex.Message
+                });
+
             default:
                 var detail = _env.IsDevelopment() ? ex.ToString() : "An unexpected error occurred.";
                 return (StatusCodes.Status500InternalServerError, "Server error", new ProblemDetails
