@@ -30,6 +30,7 @@ public class DbInitializer
     {
         await _db.Database.MigrateAsync(cancellationToken);
         await SeedAdminAsync(cancellationToken);
+        await SeedCatalogAsync(cancellationToken);
     }
 
     private async Task SeedAdminAsync(CancellationToken cancellationToken)
@@ -56,6 +57,38 @@ public class DbInitializer
         _db.AdminUsers.Add(admin);
         await _db.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Seeded initial admin user '{Email}'.", email);
+    }
+
+    private async Task SeedCatalogAsync(CancellationToken cancellationToken)
+    {
+        if (await _db.Categories.AnyAsync(cancellationToken))
+            return;
+
+        var coffee = new Category { Name = "Coffee", DisplayOrder = 1, CreatedAt = DateTime.UtcNow };
+        var pastries = new Category { Name = "Pastries", DisplayOrder = 2, CreatedAt = DateTime.UtcNow };
+        var coldDrinks = new Category { Name = "Cold Drinks", DisplayOrder = 3, CreatedAt = DateTime.UtcNow };
+
+        _db.Categories.AddRange(coffee, pastries, coldDrinks);
+
+        var products = new[]
+        {
+            new Product { Name = "Flat White",      Description = "Smooth espresso with velvety steamed milk.", Price = 5.50m, Category = coffee },
+            new Product { Name = "Long Black",      Description = "Double shot of espresso topped with hot water.", Price = 5.00m, Category = coffee },
+            new Product { Name = "Cappuccino",      Description = "Espresso with steamed milk and a thick foam top.", Price = 5.50m, Category = coffee },
+            new Product { Name = "Latte",           Description = "Espresso with plenty of steamed milk and light foam.", Price = 5.50m, Category = coffee },
+            new Product { Name = "Croissant",       Description = "Buttery, flaky French-style pastry baked daily.", Price = 6.50m, Category = pastries },
+            new Product { Name = "Banana Bread",    Description = "Toasted slice of house-made banana bread with butter.", Price = 5.50m, Category = pastries },
+            new Product { Name = "Iced Latte",      Description = "Chilled espresso poured over milk and ice.", Price = 6.00m, Category = coldDrinks },
+            new Product { Name = "Sparkling Water", Description = "Bottled sparkling mineral water.", Price = 4.00m, Category = coldDrinks }
+        };
+
+        foreach (var product in products)
+            product.CreatedAt = DateTime.UtcNow;
+
+        _db.Products.AddRange(products);
+        await _db.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation("Seeded catalog with {CategoryCount} categories and {ProductCount} products.",
+            3, products.Length);
     }
 }
 
