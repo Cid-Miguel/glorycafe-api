@@ -2,12 +2,16 @@ using System.Text;
 using System.Threading.RateLimiting;
 using GloryCafe.API.Infrastructure;
 using GloryCafe.Application;
+using GloryCafe.Application.Common.Interfaces;
 using GloryCafe.Infrastructure;
 using GloryCafe.Infrastructure.Auth;
 using GloryCafe.Infrastructure.Persistence.Seeding;
+using GloryCafe.Infrastructure.Storage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -115,6 +119,16 @@ builder.Services.AddOpenApi();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
+builder.Services.AddSingleton<IFileStorage>(sp =>
+{
+    var env = sp.GetRequiredService<IWebHostEnvironment>();
+    var webRoot = string.IsNullOrWhiteSpace(env.WebRootPath)
+        ? Path.Combine(env.ContentRootPath, "wwwroot")
+        : env.WebRootPath;
+    Directory.CreateDirectory(webRoot);
+    return new LocalFileStorage(webRoot, sp.GetRequiredService<ILogger<LocalFileStorage>>());
+});
+
 var app = builder.Build();
 
 await app.Services.InitializeDatabaseAsync();
@@ -133,6 +147,20 @@ else
 }
 
 app.UseHttpsRedirection();
+
+var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "uploads");
+Directory.CreateDirectory(uploadsPath);
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadsPath),
+    RequestPath = "/uploads",
+    OnPrepareResponse = ctx =>
+    {
+        ctx.Context.Response.Headers["Cache-Control"] = "public,max-age=2592000";
+        ctx.Context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    }
+});
+
 app.UseRouting();
 app.UseCors(CorsPolicyName);
 app.UseRateLimiter();

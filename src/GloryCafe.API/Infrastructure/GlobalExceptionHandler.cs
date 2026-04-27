@@ -64,6 +64,12 @@ public class GlobalExceptionHandler : IExceptionHandler
                     Detail = ex.Message
                 });
 
+            case ConflictException:
+                return (StatusCodes.Status409Conflict, "Conflict", new ProblemDetails
+                {
+                    Detail = ex.Message
+                });
+
             default:
                 var detail = _env.IsDevelopment() ? ex.ToString() : "An unexpected error occurred.";
                 return (StatusCodes.Status500InternalServerError, "Server error", new ProblemDetails
