@@ -1,5 +1,6 @@
 using GloryCafe.Application.Common.Exceptions;
 using GloryCafe.Application.Common.Interfaces;
+using GloryCafe.Application.Common.Notifications;
 using GloryCafe.Domain.Entities;
 using GloryCafe.Domain.Enums;
 using MediatR;
@@ -11,10 +12,12 @@ public class CreateOrderCommandHandler
     : IRequestHandler<CreateOrderCommand, CreateOrderResult>
 {
     private readonly IApplicationDbContext _db;
+    private readonly IOrderNotificationService _notifications;
 
-    public CreateOrderCommandHandler(IApplicationDbContext db)
+    public CreateOrderCommandHandler(IApplicationDbContext db, IOrderNotificationService notifications)
     {
         _db = db;
+        _notifications = notifications;
     }
 
     public async Task<CreateOrderResult> Handle(
@@ -78,6 +81,16 @@ public class CreateOrderCommandHandler
 
         _db.Orders.Add(order);
         await _db.SaveChangesAsync(cancellationToken);
+
+        await _notifications.NotifyOrderCreatedAsync(
+            new OrderCreatedNotification(
+                order.Id,
+                order.CustomerFirstName,
+                order.CustomerLastName,
+                order.TotalAmount,
+                order.Items.Count,
+                order.CreatedAt),
+            cancellationToken);
 
         return new CreateOrderResult(order.Id, order.TotalAmount);
     }
