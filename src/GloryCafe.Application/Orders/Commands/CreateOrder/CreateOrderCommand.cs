@@ -12,4 +12,8 @@ public record CreateOrderCommand(
 
 public record CreateOrderItemDto(int ProductId, int Quantity);
 
-public record CreateOrderResult(int OrderId, decimal TotalAmount);
+public record CreateOrderResult(
+    int OrderId,
+    DateOnly OrderDate,
+    int DailyOrderNumber,
+    decimal TotalAmount);

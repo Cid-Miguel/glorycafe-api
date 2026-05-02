@@ -1,5 +1,6 @@
 using GloryCafe.Application.Common.Interfaces;
 using GloryCafe.Infrastructure.Auth;
+using GloryCafe.Infrastructure.Common;
 using GloryCafe.Infrastructure.Persistence;
 using GloryCafe.Infrastructure.Persistence.Seeding;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +30,9 @@ public static class DependencyInjection
 
         services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
+        services.AddSingleton<IClock, SystemClock>();
 
+        services.AddScoped<IOrderNumberAllocator, PostgresOrderNumberAllocator>();
         services.AddScoped<DbInitializer>();
 
         return services;

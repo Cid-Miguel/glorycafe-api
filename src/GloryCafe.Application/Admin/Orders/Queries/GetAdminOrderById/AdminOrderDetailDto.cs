@@ -4,6 +4,8 @@ namespace GloryCafe.Application.Admin.Orders.Queries.GetAdminOrderById;
 
 public record AdminOrderDetailDto(
     int Id,
+    DateOnly OrderDate,
+    int DailyOrderNumber,
     string CustomerFirstName,
     string CustomerLastName,
     string? CustomerPhone,

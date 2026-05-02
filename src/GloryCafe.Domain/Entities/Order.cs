@@ -14,6 +14,9 @@ public class Order : BaseEntity
     public OrderStatus Status { get; set; } = OrderStatus.Pending;
     public decimal TotalAmount { get; set; }
 
+    public DateOnly OrderDate { get; set; }
+    public int DailyOrderNumber { get; set; }
+
     public string? StripePaymentIntentId { get; set; }
 
     public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();

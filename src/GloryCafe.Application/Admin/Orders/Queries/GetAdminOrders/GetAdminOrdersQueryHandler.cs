@@ -27,6 +27,8 @@ public class GetAdminOrdersQueryHandler
             .OrderBy(o => o.CreatedAt)
             .Select(o => new AdminOrderSummaryDto(
                 o.Id,
+                o.OrderDate,
+                o.DailyOrderNumber,
                 o.CustomerFirstName,
                 o.CustomerLastName,
                 o.EstimatedPickupTime,

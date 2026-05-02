@@ -25,6 +25,8 @@ public class GetAdminOrderByIdQueryHandler
             .Where(o => o.Id == request.Id)
             .Select(o => new AdminOrderDetailDto(
                 o.Id,
+                o.OrderDate,
+                o.DailyOrderNumber,
                 o.CustomerFirstName,
                 o.CustomerLastName,
                 o.CustomerPhone,

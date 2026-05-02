@@ -40,6 +40,12 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .IsRequired()
             .HasColumnType("numeric(10,2)");
 
+        builder.Property(o => o.OrderDate)
+            .IsRequired();
+
+        builder.Property(o => o.DailyOrderNumber)
+            .IsRequired();
+
         builder.Property(o => o.StripePaymentIntentId)
             .HasMaxLength(100);
 
@@ -48,6 +54,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.HasIndex(o => o.Status);
         builder.HasIndex(o => o.CreatedAt);
+        builder.HasIndex(o => new { o.OrderDate, o.DailyOrderNumber }).IsUnique();
 
         builder.HasMany(o => o.Items)
             .WithOne(i => i.Order)
