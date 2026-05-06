@@ -1,0 +1,51 @@
+# ── .NET build output ──────────────────────────────────────────────
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+out/
+*.dll
+*.pdb
+*.exe
+*.cache
+
+# ── User-specific files ────────────────────────────────────────────
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# ── Visual Studio / Rider / VS Code ────────────────────────────────
+.vs/
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# ── Local secrets — NEVER commit ───────────────────────────────────
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Local.json
+*.pfx
+*.key
+
+# ── Test results / coverage ────────────────────────────────────────
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# ── ReSharper / dotCover ───────────────────────────────────────────
+_ReSharper*/
+*.[Rr]e[Ss]harper
+
+# ── OS noise ───────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Logs ───────────────────────────────────────────────────────────
+*.log
+
+# ── EF Core local files ────────────────────────────────────────────
+*.sqlite
+*.db
