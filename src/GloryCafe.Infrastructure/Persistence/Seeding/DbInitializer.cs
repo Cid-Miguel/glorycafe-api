@@ -51,6 +51,9 @@ public class DbInitializer
             Email = email,
             DisplayName = _seed.DisplayName,
             PasswordHash = _hasher.Hash(_seed.Password),
+            // Seeded password is meant for the very first login only —
+            // the admin must rotate it before they can use the dashboard.
+            MustChangePassword = true,
             CreatedAt = DateTime.UtcNow
         };
 

@@ -19,6 +19,16 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Belt-and-suspenders: WebApplication.CreateBuilder already adds User
+// Secrets in Development, but a missing/relocated secrets file shouldn't
+// crash the app — env vars are an equally valid source for the same
+// keys and what production uses. The validation a few lines below
+// catches missing values from any source.
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>(optional: true, reloadOnChange: true);
+}
+
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
 const string CorsPolicyName = "GloryCafeCors";
@@ -95,13 +105,21 @@ var jwt = jwtSection.Get<JwtSettings>()
     ?? throw new InvalidOperationException("Jwt configuration section is missing.");
 
 if (string.IsNullOrWhiteSpace(jwt.SigningKey) || jwt.SigningKey.Length < 32)
-    throw new InvalidOperationException("Jwt:SigningKey must be at least 32 characters.");
+    throw new InvalidOperationException(
+        "Jwt:SigningKey must be at least 32 characters. " +
+        "In development, set it via `dotnet user-secrets set \"Jwt:SigningKey\" " +
+        "\"<random base64>\"`. In production, set the env var Jwt__SigningKey.");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
         options.SaveToken = false;
+        // Keep claim names as issued in the token. By default the
+        // handler rewrites `sub`/`email`/etc. to legacy ClaimTypes.*
+        // URIs, which makes downstream lookups by `JwtRegisteredClaimNames.Sub`
+        // ("sub") miss the claim entirely.
+        options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -138,6 +156,9 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 builder.Services.AddScoped<IOrderNotificationService, SignalROrderNotificationService>();
 

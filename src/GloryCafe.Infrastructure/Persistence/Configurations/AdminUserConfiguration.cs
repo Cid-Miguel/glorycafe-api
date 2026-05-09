@@ -26,6 +26,10 @@ public class AdminUserConfiguration : IEntityTypeConfiguration<AdminUser>
             .IsRequired()
             .HasMaxLength(100);
 
+        builder.Property(u => u.MustChangePassword)
+            .IsRequired()
+            .HasDefaultValue(true);
+
         builder.Property(u => u.CreatedAt)
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
     }

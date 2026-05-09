@@ -23,7 +23,10 @@ out/
 !.vscode/extensions.json
 
 # ── Local secrets — NEVER commit ───────────────────────────────────
-appsettings.Development.json
+# Note: appsettings.Development.json IS committed now — it only holds
+# non-sensitive dev overrides (Issuer/Audience suffixes). Real secrets
+# (DB password, JWT signing key, seed admin password) live in .NET
+# User Secrets in dev and environment variables in prod.
 appsettings.Production.json
 appsettings.Local.json
 *.pfx

@@ -34,6 +34,10 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResult>
 
         var token = _tokenGenerator.Generate(user);
 
-        return new LoginResult(token.AccessToken, token.ExpiresAtUtc, user.DisplayName);
+        return new LoginResult(
+            token.AccessToken,
+            token.ExpiresAtUtc,
+            user.DisplayName,
+            user.MustChangePassword);
     }
 }
